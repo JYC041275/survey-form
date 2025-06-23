@@ -96,34 +96,36 @@
         </form>
     </div>
 
-    <script>
-        // 你的 Google Apps Script 網址已經設定好了
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxNpy1ky0ytis1F96VTqSuPNwri-cwGMV3UMq3AjyCt9O2I2hn9TQ_OOijH_3-jh0g8/exec'; 
-        
-        const form = document.getElementById('userInfoForm');
-        const submitButton = document.getElementById('submitButton');
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxNpy1ky0ytis1F96VTqSuPNwri-cwGMV3UMq3AjyCt9O2I2hn9TQ_OOijH_3-jh0g8/exec';
+    
+    const form = document.getElementById('userInfoForm');
+    const submitButton = document.getElementById('submitButton');
 
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            
-            submitButton.disabled = true;
-            submitButton.textContent = '資料傳送中...';
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        submitButton.disabled = true;
+        submitButton.textContent = '資料傳送中...';
 
-            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-                .then(response => {
-                    console.log('Success!', response);
-                    alert('資料已成功送出！即將開始測驗。');
-                    
-                    // 跳轉到你的 Canva 問卷頁面
-                    window.location.href = 'https://sleeptest111.my.canva.site/starbusiness';
-                })
-                .catch(error => {
-                    console.error('Error!', error.message);
-                    alert('資料送出失敗，請稍後再試。');
-                    submitButton.disabled = false;
-                    submitButton.textContent = '送出資料並開始測驗';
-                });
-        });
-    </script>
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success' && data.userId) {
+                    localStorage.setItem('surveySessionId', data.userId);
+                    alert('基本資料已成功送出！即將開始測驗。');
+                    // 【重要修改】跳轉到我們自己的問卷頁面
+                    window.location.href = 'quiz.html';
+                } else {
+                    throw new Error(data.message || '回傳資料格式錯誤');
+                }
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                alert('資料送出失敗，請稍後再試。');
+                submitButton.disabled = false;
+                submitButton.textContent = '送出資料並開始測驗';
+            });
+    });
+</script>
 </body>
 </html>
