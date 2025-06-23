@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>失眠嚴重度量表</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f7f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px 0; }
+        .container { background-color: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px; }
+        h1, h2 { text-align: center; color: #333; }
+        p { color: #555; line-height: 1.6; }
+        ul { list-style-type: none; padding: 0; }
+        li { background-color: #f8f9fa; margin-bottom: 10px; padding: 15px; border-radius: 5px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+        li:hover { border-color: #007bff; }
+        li.selected { border-color: #007bff; background-color: #e9f2ff; font-weight: bold; }
+        button { display: block; width: 50%; margin: 30px auto 0; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .question-header { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .progress-bar { width: 100%; background-color: #e9ecef; border-radius: .25rem; margin-bottom: 20px; }
+        .progress-bar-inner { height: 10px; background-color: #007bff; border-radius: .25rem; width: 0%; transition: width 0.4s ease; }
+        #results-container ul { padding-left: 20px; list-style-type: disc; }
+        #results-container li { background-color: transparent; margin-bottom: 8px; padding: 0; border: none; cursor: default; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="quiz-container">
+            <h1>失眠嚴重度量表</h1>
+            <div class="progress-bar"><div class="progress-bar-inner" id="progressBar"></div></div>
+            <div class="question-header">
+                <h2 id="question-text"></h2>
+                <p id="question-topic" style="text-align:center; color:#6c757d;"></p>
+            </div>
+            <ul id="options-container"></ul>
+            <button id="next-btn" disabled>下一題</button>
+        </div>
+
+        <div id="results-container" style="display: none;">
+            <h1>評估結果</h1>
+            <h2 id="result-title"></h2>
+            <p><strong>總分：<span id="score-text"></span></strong></p>
+            <p><strong>您的情況分析：</strong></p>
+            <p id="result-range"></p>
+            <p><strong>建議與改善方法：</strong></p>
+            <div id="result-suggestions"></div>
+            <p style="text-align:center; margin-top:30px; font-size:0.9em; color:#6c757d;">本量表僅為初步評估，不能取代專業醫療診斷。</p>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { topic: "評估近兩週內失眠問題的嚴重程度", question: "A. 入睡困難", options: ["無", "輕度", "中度", "重度", "非常嚴重"] },
+            { topic: "評估近兩週內失眠問題的嚴重程度", question: "B. 無法維持較長的睡眠", options: ["無", "輕度", "中度", "重度", "非常嚴重"] },
+            { topic: "評估近兩週內失眠問題的嚴重程度", question: "C. 太早醒", options: ["無", "輕度", "中度", "重度", "非常嚴重"] },
+            { topic: "您滿意自己最近的睡眠狀態嗎？", question: "滿意度", options: ["非常滿意", "滿意", "中等", "不滿意", "非常不滿意"] },
+            { topic: "睡眠問題是否干擾到您的日常生活功能？", question: "干擾程度", options: ["完全無干擾", "一點", "稍微", "很多", "非常多"] },
+            { topic: "他人是否有注意到您的生活品質因睡眠問題受到影響？", question: "他人注意程度", options: ["完全沒注意", "一點", "稍微", "很多", "非常注意"] },
+            { topic: "最近的睡眠問題是否令您擔心或困擾？", question: "困擾程度", options: ["完全沒注意", "一點", "稍微", "很多", "非常注意"] }
+        ];
+
+        const resultsData = {
+            "0-7": { title: "無臨床意義的失眠", range: "0～7分：無明顯失眠困擾", suggestions: "<ul><li>維持規律的作息時間，每天固定時間上床與起床</li><li>睡前1-2小時避免使用手機、電腦等電子產品</li><li>保持適當的運動習慣，但避免睡前3小時內進行劇烈運動</li><li>創造舒適的睡眠環境：適當溫度、安靜、黑暗</li></ul>" },
+            "8-14": { title: "輕度失眠", range: "8～14分：稍有睡眠困擾", suggestions: "<ul><li>建立良好的睡眠環境（安靜、舒適、黑暗、適溫）</li><li>睡前放鬆活動：深呼吸、冥想、溫和伸展或聆聽輕柔音樂</li><li>避免睡前攝取咖啡因、尼古丁和酒精</li><li>睡前避免大量飲水或進食</li><li>白天適度曝曬陽光，有助於調節生理時鐘</li><li>考慮使用重力毯，利用深壓覺放鬆身體，改善睡眠</li></ul>" },
+            "15-21": { title: "中度失眠", range: "15～21分：有明顯失眠困擾", suggestions: "<ul><li>嚴格執行睡眠衛生原則</li><li>考慮認知行為療法（CBT-I），這是治療失眠的有效方法</li><li>建立「睡眠日誌」記錄睡眠模式，幫助找出問題</li><li>限制在床上的時間，只用於睡眠和親密行為</li><li>如果無法入睡，起床做些輕鬆活動，直到感到困倦再回床</li><li>考慮使用重力毯，利用深壓覺放鬆身體，改善睡眠</li><li>如症狀持續超過一個月，建議諮詢專業醫師</li></ul>" },
+            "22-28": { title: "重度失眠", range: "22～28分：有嚴重失眠困擾", suggestions: "<ul><li>盡快諮詢專業醫師或睡眠專家</li><li>可能需要專業的睡眠評估和治療計劃</li><li>同時注意情緒健康，因失眠可能與焦慮、憂鬱等問題相關</li><li>在專業指導下，可能需要短期藥物治療配合行為治療</li><li>考慮使用重力毯，利用深壓覺放鬆身體，改善睡眠</li><li>尋求家人或朋友的支持與理解</li></ul>" }
+        };
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOptionIndex = -1;
+
+        const questionTextEl = document.getElementById('question-text');
+        const questionTopicEl = document.getElementById('question-topic');
+        const optionsContainerEl = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progressBar');
+        
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const scoreTextEl = document.getElementById('score-text');
+        const resultTitleEl = document.getElementById('result-title');
+        const resultRangeEl = document.getElementById('result-range');
+        const resultSuggestionsEl = document.getElementById('result-suggestions');
+        
+        function loadQuestion() {
+            selectedOptionIndex = -1;
+            nextBtn.disabled = true;
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionTopicEl.innerText = currentQuestion.topic;
+            questionTextEl.innerText = currentQuestion.question;
+            optionsContainerEl.innerHTML = "";
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerText = option;
+                li.dataset.value = index;
+                li.addEventListener('click', () => {
+                    document.querySelectorAll('#options-container li').forEach(opt => opt.classList.remove('selected'));
+                    li.classList.add('selected');
+                    selectedOptionIndex = index;
+                    nextBtn.disabled = false;
+                });
+                optionsContainerEl.appendChild(li);
+            });
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        
+        function showResults() {
+            quizContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            
+            let resultKey;
+            if (score <= 7) resultKey = "0-7";
+            else if (score <= 14) resultKey = "8-14";
+            else if (score <= 21) resultKey = "15-21";
+            else resultKey = "22-28";
+            
+            const result = resultsData[resultKey];
+            scoreTextEl.innerText = score;
+            resultTitleEl.innerText = result.title;
+            resultRangeEl.innerText = result.range;
+            resultSuggestionsEl.innerHTML = result.suggestions;
+
+            saveScoreToSheet(score);
+        }
+
+        function saveScoreToSheet(finalScore) {
+            const userId = localStorage.getItem('surveySessionId');
+            if (!userId) {
+                console.error("找不到使用者ID，無法儲存分數。");
+                return;
+            }
+
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxNpy1ky0ytis1F96VTqSuPNwri-cwGMV3UMq3AjyCt9O2I2hn9TQ_OOijH_3-jh0g8/exec';
+            const formData = new FormData();
+            formData.append('action', 'updateScore');
+            formData.append('userId', userId);
+            formData.append('score', finalScore);
+
+            fetch(scriptURL, { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        console.log("分數已成功儲存至 Google Sheet。");
+                        localStorage.removeItem('surveySessionId');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => console.error('儲存分數到 Google Sheet 時發生錯誤:', error.message));
+        }
+
+        nextBtn.addEventListener('click', () => {
+            score += selectedOptionIndex;
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                updateProgressBar(); // Make it 100%
+                progressBar.style.width = '100%';
+                showResults();
+            }
+        });
+
+        loadQuestion();
+    </script>
+</body>
+</html>
