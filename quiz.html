@@ -135,7 +135,8 @@
                 return;
             }
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxNpy1ky0ytis1F96VTqSuPNwri-cwGMV3UMq3AjyCt9O2I2hn9TQ_OOijH_3-jh0g8/exec';
+            // 【已更新】使用你最新的 Apps Script 網址
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxT4lZJBIWF_PbnyR57wnNED2jAULRMVrWeOsa1NIEeBPCYoQ0yGlvPzCspfg-S_OgV/exec';
             const formData = new FormData();
             formData.append('action', 'updateScore');
             formData.append('userId', userId);
@@ -160,7 +161,7 @@
             if (currentQuestionIndex < quizData.length) {
                 loadQuestion();
             } else {
-                updateProgressBar(); // Make it 100%
+                updateProgressBar();
                 progressBar.style.width = '100%';
                 showResults();
             }
