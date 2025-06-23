@@ -54,67 +54,6 @@
         const form = document.getElementById('userInfoForm');
         const submitButton = document.getElementById('submitButton');
 
-        // 使用 iframe 方式提交表單，避免 CORS 問題
-        function submitViaIframe(formData) {
-            return new Promise((resolve) => {
-                // 創建隱藏的 iframe
-                const iframe = document.createElement('iframe');
-                iframe.name = 'hidden-iframe';
-                iframe.style.display = 'none';
-                document.body.appendChild(iframe);
-                
-                // 創建表單
-                const hiddenForm = document.createElement('form');
-                hiddenForm.method = 'POST';
-                hiddenForm.action = scriptURL;
-                hiddenForm.target = 'hidden-iframe';
-                hiddenForm.style.display = 'none';
-                
-                // 添加表單欄位
-                for (let [key, value] of formData.entries()) {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = value;
-                    hiddenForm.appendChild(input);
-                }
-                
-                document.body.appendChild(hiddenForm);
-                
-                // 設定 3 秒後自動認為成功（因為無法跨域讀取回應）
-                const timeout = setTimeout(() => {
-                    cleanup();
-                    resolve({
-                        status: 'success',
-                        userId: 'USER-' + Date.now() // 產生臨時 ID
-                    });
-                }, 3000);
-                
-                // 清理函數
-                function cleanup() {
-                    clearTimeout(timeout);
-                    if (document.body.contains(hiddenForm)) {
-                        document.body.removeChild(hiddenForm);
-                    }
-                    if (document.body.contains(iframe)) {
-                        document.body.removeChild(iframe);
-                    }
-                }
-                
-                // iframe 載入完成（通常表示提交成功）
-                iframe.onload = function() {
-                    cleanup();
-                    resolve({
-                        status: 'success',
-                        userId: 'USER-' + Date.now()
-                    });
-                };
-                
-                // 提交表單
-                hiddenForm.submit();
-            });
-        }
-
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -127,16 +66,23 @@
             try {
                 const result = await submitViaIframe(formData);
                 
-                if (result.status === 'success') {
-                    // 儲存 userId 到 localStorage
-                    const userId = result.userId || 'USER-' + Date.now();
-                    localStorage.setItem('surveySessionId', userId);
-                    
-                    alert('基本資料已成功送出！即將開始測驗。');
-                    window.location.href = 'quiz.html';
-                } else {
-                    throw new Error('提交失敗');
-                }
+                // 儲存多重識別資訊到 localStorage
+                const sessionData = {
+                    userId: result.userId || 'USER-' + Date.now(),
+                    email: formData.get('email'),
+                    timestamp: Date.now(),
+                    name: formData.get('name')
+                };
+                console.log('儲存會話資料:', sessionData);
+                
+                // 舊的方式保持相容性
+                localStorage.setItem('surveySessionId', sessionData.userId);
+                // 新的方式儲存完整資訊
+                localStorage.setItem('surveySessionData', JSON.stringify(sessionData));
+                
+                alert('基本資料已成功送出！即將開始測驗。');
+                window.location.href = 'quiz.html';
+                
             } catch (error) {
                 console.error('提交錯誤:', error);
                 alert('資料送出失敗，請稍後再試。');
@@ -145,6 +91,64 @@
                 submitButton.textContent = '送出資料並開始測驗';
             }
         });
+
+        // 使用 iframe 方式提交表單，避免 CORS 問題
+        function submitViaIframe(formData) {
+            return new Promise((resolve) => {
+                const iframe = document.createElement('iframe');
+                iframe.name = 'hidden-iframe';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                const hiddenForm = document.createElement('form');
+                hiddenForm.method = 'POST';
+                hiddenForm.action = scriptURL;
+                hiddenForm.target = 'hidden-iframe';
+                hiddenForm.style.display = 'none';
+                
+                for (let [key, value] of formData.entries()) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    hiddenForm.appendChild(input);
+                }
+                
+                document.body.appendChild(hiddenForm);
+                
+                const timeout = setTimeout(() => {
+                    cleanup();
+                    resolve({
+                        status: 'success',
+                        userId: 'USER-' + Date.now(),
+                        email: formData.get('email'),
+                        timestamp: Date.now()
+                    });
+                }, 3000);
+                
+                function cleanup() {
+                    clearTimeout(timeout);
+                    if (document.body.contains(hiddenForm)) {
+                        document.body.removeChild(hiddenForm);
+                    }
+                    if (document.body.contains(iframe)) {
+                        document.body.removeChild(iframe);
+                    }
+                }
+                
+                iframe.onload = function() {
+                    cleanup();
+                    resolve({
+                        status: 'success',
+                        userId: 'USER-' + Date.now(),
+                        email: formData.get('email'),
+                        timestamp: Date.now()
+                    });
+                };
+                
+                hiddenForm.submit();
+            });
+        }
     </script>
 </body>
 </html>

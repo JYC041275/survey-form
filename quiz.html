@@ -128,32 +128,98 @@
             saveScoreToSheet(score);
         }
 
-        function saveScoreToSheet(finalScore) {
-            const userId = localStorage.getItem('surveySessionId');
-            if (!userId) {
-                console.error("找不到使用者ID，無法儲存分數。");
-                return;
-            }
+        // 替換 quiz.html 中的 saveScoreToSheet 函數
 
-            // 【已更新】使用你最新的 Apps Script 網址
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbyD325SiMu3Q15nxnv8YHlt4MaWGH6vflfoYnqFH_18WhbWHGgQwDSvaEW0J_ZOO5GM/exec';
-            const formData = new FormData();
-            formData.append('action', 'updateScore');
-            formData.append('userId', userId);
-            formData.append('score', finalScore);
-
-            fetch(scriptURL, { method: 'POST', body: formData })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.status === 'success') {
-                        console.log("分數已成功儲存至 Google Sheet。");
-                        localStorage.removeItem('surveySessionId');
-                    } else {
-                        throw new Error(data.message);
-                    }
-                })
-                .catch(error => console.error('儲存分數到 Google Sheet 時發生錯誤:', error.message));
+function saveScoreToSheet(finalScore) {
+    // 嘗試取得完整的會話資料
+    let sessionData = null;
+    try {
+        const sessionDataStr = localStorage.getItem('surveySessionData');
+        if (sessionDataStr) {
+            sessionData = JSON.parse(sessionDataStr);
         }
+    } catch (error) {
+        console.error('解析會話資料失敗:', error);
+    }
+
+    // 如果沒有完整資料，回到舊的方式
+    const userId = sessionData ? sessionData.userId : localStorage.getItem('surveySessionId');
+    const email = sessionData ? sessionData.email : null;
+    const timestamp = sessionData ? sessionData.timestamp : null;
+
+    if (!userId) {
+        console.error("找不到使用者識別資訊，無法儲存分數。");
+        return;
+    }
+
+    console.log('準備儲存分數:', { userId, email, timestamp, finalScore });
+
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyD325SiMu3Q15nxnv8YHlt4MaWGH6vflfoYnqFH_18WhbWHGgQwDSvaEW0J_ZOO5GM/exec';
+    
+    // 使用 iframe 方式提交分數，避免 CORS 問題
+    const iframe = document.createElement('iframe');
+    iframe.name = 'score-iframe';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = scriptURL;
+    form.target = 'score-iframe';
+    form.style.display = 'none';
+    
+    // 添加表單欄位
+    const fields = {
+        action: 'updateScore',
+        userId: userId,
+        score: finalScore
+    };
+    
+    // 如果有 email 和 timestamp，也一起送出
+    if (email) fields.email = email;
+    if (timestamp) fields.timestamp = timestamp;
+    
+    for (let [key, value] of Object.entries(fields)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+    }
+    
+    document.body.appendChild(form);
+    
+    // 設定超時處理
+    const timeout = setTimeout(() => {
+        console.log("分數儲存請求已送出（超時假設成功）");
+        cleanup();
+        // 清除會話資料
+        localStorage.removeItem('surveySessionId');
+        localStorage.removeItem('surveySessionData');
+    }, 3000);
+    
+    // iframe 載入完成事件
+    iframe.onload = function() {
+        console.log("分數儲存請求已完成");
+        clearTimeout(timeout);
+        cleanup();
+        // 清除會話資料
+        localStorage.removeItem('surveySessionId');
+        localStorage.removeItem('surveySessionData');
+    };
+    
+    function cleanup() {
+        if (document.body.contains(form)) {
+            document.body.removeChild(form);
+        }
+        if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+        }
+    }
+    
+    // 提交表單
+    form.submit();
+}
 
         nextBtn.addEventListener('click', () => {
             score += selectedOptionIndex;
