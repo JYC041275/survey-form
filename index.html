@@ -48,36 +48,42 @@
         </form>
     </div>
 
-    <script>
-        // 【已更新】使用你最新的 Apps Script 網址
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxT4lZJBIWF_PbnyR57wnNED2jAULRMVrWeOsa1NIEeBPCYoQ0yGlvPzCspfg-S_OgV/exec';
+   <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw6ameoMOASe9O25lsWUIoxQv37S03GbkBMRLFHc2biuRxrGYDUPwVb9StyvFzFnBcz/exec';
+    
+    const form = document.getElementById('userInfoForm');
+    const submitButton = document.getElementById('submitButton');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
         
-        const form = document.getElementById('userInfoForm');
-        const submitButton = document.getElementById('submitButton');
+        // 將表單資料轉換成 FormData 物件
+        const formData = new FormData(form);
+        // 【重要】新增一個 'action' 參數，告訴後端我們要建立使用者
+        formData.append('action', 'createUser');
 
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            submitButton.disabled = true;
-            submitButton.textContent = '資料傳送中...';
+        submitButton.disabled = true;
+        submitButton.textContent = '資料傳送中...';
 
-            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success' && data.userId) {
-                        localStorage.setItem('surveySessionId', data.userId);
-                        alert('基本資料已成功送出！即將開始測驗。');
-                        window.location.href = 'quiz.html';
-                    } else {
-                        throw new Error(data.message || '回傳資料格式錯誤');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error!', error.message);
-                    alert('資料送出失敗，請稍後再試。');
-                    submitButton.disabled = false;
-                    submitButton.textContent = '送出資料並開始測驗';
-                });
-        });
-    </script>
+        fetch(scriptURL, { method: 'POST', body: formData})
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success' && data.userId) {
+                    localStorage.setItem('surveySessionId', data.userId);
+                    alert('基本資料已成功送出！即將開始測驗。');
+                    window.location.href = 'quiz.html';
+                } else {
+                    // 如果後端回報錯誤，顯示它的錯誤訊息
+                    throw new Error(data.message || '回傳資料格式錯誤');
+                }
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                alert('資料送出失敗，請稍後再試。');
+                submitButton.disabled = false;
+                submitButton.textContent = '送出資料並開始測驗';
+            });
+    });
+</script>
 </body>
 </html>
