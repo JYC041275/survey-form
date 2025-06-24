@@ -3,237 +3,693 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>失眠嚴重度量表</title>
+    <title>失眠嚴重度量表 - 顧眠重力毯</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f7f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px 0; }
-        .container { background-color: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px; }
-        h1, h2 { text-align: center; color: #333; }
-        p { color: #555; line-height: 1.6; }
-        ul { list-style-type: none; padding: 0; }
-        li { background-color: #f8f9fa; margin-bottom: 10px; padding: 15px; border-radius: 5px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
-        li:hover { border-color: #007bff; }
-        li.selected { border-color: #007bff; background-color: #e9f2ff; font-weight: bold; }
-        button { display: block; width: 50%; margin: 30px auto 0; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
-        button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        .question-header { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .progress-bar { width: 100%; background-color: #e9ecef; border-radius: .25rem; margin-bottom: 20px; }
-        .progress-bar-inner { height: 10px; background-color: #007bff; border-radius: .25rem; width: 0%; transition: width 0.4s ease; }
-        #results-container ul { padding-left: 20px; list-style-type: disc; }
-        #results-container li { background-color: transparent; margin-bottom: 8px; padding: 0; border: none; cursor: default; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #F7F3ED 0%, #FFF0D7 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(63, 134, 166, 0.1);
+            border: 1px solid rgba(63, 134, 166, 0.1);
+        }
+
+        .header h1 {
+            color: #3F86A6;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background: #D7DFE0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3F86A6, #D7DFE0);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .quiz-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(63, 134, 166, 0.1);
+            border: 1px solid rgba(63, 134, 166, 0.1);
+        }
+
+        .question-group {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #F7F3ED;
+        }
+
+        .question-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .question-topic {
+            color: #3F86A6;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #FFF0D7, #F7F3ED);
+            border-radius: 10px;
+            border-left: 4px solid #3F86A6;
+        }
+
+        .question-title {
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-left: 10px;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            background: #F7F3ED;
+            border: 2px solid #D7DFE0;
+            border-radius: 12px;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(63, 134, 166, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .option:hover {
+            border-color: #3F86A6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(63, 134, 166, 0.2);
+        }
+
+        .option:hover::before {
+            left: 100%;
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #3F86A6, #D7DFE0);
+            border-color: #3F86A6;
+            color: white;
+            font-weight: 600;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(63, 134, 166, 0.3);
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #3F86A6, #D7DFE0);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 30px auto 0;
+            box-shadow: 0 4px 15px rgba(63, 134, 166, 0.3);
+            min-width: 200px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(63, 134, 166, 0.4);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(63, 134, 166, 0.1);
+            border: 1px solid rgba(63, 134, 166, 0.1);
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #FFF0D7, #F7F3ED);
+            border-radius: 15px;
+            border-left: 4px solid #FFD400;
+        }
+
+        .results-title {
+            color: #3F86A6;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .score-display {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .score-number {
+            color: #3F86A6;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .results-content {
+            margin-bottom: 30px;
+        }
+
+        .results-content h3 {
+            color: #3F86A6;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .results-content p {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .suggestions-list {
+            background: #F7F3ED;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .suggestions-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .suggestions-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #D7DFE0;
+            position: relative;
+            padding-left: 25px;
+            color: #333;
+        }
+
+        .suggestions-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #3F86A6;
+            font-weight: bold;
+        }
+
+        .suggestions-list li:last-child {
+            border-bottom: none;
+        }
+
+        .line-cta {
+            background: linear-gradient(135deg, #3F86A6, #D7DFE0);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 30px;
+            color: white;
+            box-shadow: 0 6px 20px rgba(63, 134, 166, 0.3);
+        }
+
+        .line-cta h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .line-cta p {
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .line-button {
+            background: white;
+            color: #3F86A6;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .line-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .disclaimer {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            padding: 20px;
+            background: #F7F3ED;
+            border-radius: 10px;
+            border: 1px solid #D7DFE0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .quiz-section {
+                padding: 25px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="quiz-container">
+        <div class="header">
             <h1>失眠嚴重度量表</h1>
-            <div class="progress-bar"><div class="progress-bar-inner" id="progressBar"></div></div>
-            <div class="question-header">
-                <h2 id="question-text"></h2>
-                <p id="question-topic" style="text-align:center; color:#6c757d;"></p>
+            <p>專業評估您的睡眠品質，找到最適合的改善方案</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
             </div>
-            <ul id="options-container"></ul>
-            <button id="next-btn" disabled>下一題</button>
         </div>
 
-        <div id="results-container" style="display: none;">
-            <h1>評估結果</h1>
-            <h2 id="result-title"></h2>
-            <p><strong>總分：<span id="score-text"></span></strong></p>
-            <p><strong>您的情況分析：</strong></p>
-            <p id="result-range"></p>
-            <p><strong>建議與改善方法：</strong></p>
-            <div id="result-suggestions"></div>
-            <p style="text-align:center; margin-top:30px; font-size:0.9em; color:#6c757d;">本量表僅為初步評估，不能取代專業醫療診斷。</p>
+        <div class="quiz-section" id="quizSection">
+            <div class="question-group">
+                <div class="question-topic">評估近兩週內失眠問題的嚴重程度</div>
+                
+                <div class="question-title">A. 入睡困難</div>
+                <div class="options-container" data-question="0">
+                    <div class="option" data-value="0">無</div>
+                    <div class="option" data-value="1">輕度</div>
+                    <div class="option" data-value="2">中度</div>
+                    <div class="option" data-value="3">重度</div>
+                    <div class="option" data-value="4">非常嚴重</div>
+                </div>
+
+                <div class="question-title">B. 無法維持較長的睡眠</div>
+                <div class="options-container" data-question="1">
+                    <div class="option" data-value="0">無</div>
+                    <div class="option" data-value="1">輕度</div>
+                    <div class="option" data-value="2">中度</div>
+                    <div class="option" data-value="3">重度</div>
+                    <div class="option" data-value="4">非常嚴重</div>
+                </div>
+
+                <div class="question-title">C. 太早醒</div>
+                <div class="options-container" data-question="2">
+                    <div class="option" data-value="0">無</div>
+                    <div class="option" data-value="1">輕度</div>
+                    <div class="option" data-value="2">中度</div>
+                    <div class="option" data-value="3">重度</div>
+                    <div class="option" data-value="4">非常嚴重</div>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <div class="question-topic">您滿意自己最近的睡眠狀態嗎？</div>
+                <div class="question-title">滿意度</div>
+                <div class="options-container" data-question="3">
+                    <div class="option" data-value="0">非常滿意</div>
+                    <div class="option" data-value="1">滿意</div>
+                    <div class="option" data-value="2">中等</div>
+                    <div class="option" data-value="3">不滿意</div>
+                    <div class="option" data-value="4">非常不滿意</div>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <div class="question-topic">睡眠問題是否干擾到您的日常生活功能？</div>
+                <div class="question-title">干擾程度</div>
+                <div class="options-container" data-question="4">
+                    <div class="option" data-value="0">完全無干擾</div>
+                    <div class="option" data-value="1">一點</div>
+                    <div class="option" data-value="2">稍微</div>
+                    <div class="option" data-value="3">很多</div>
+                    <div class="option" data-value="4">非常多</div>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <div class="question-topic">他人是否有注意到您的生活品質因睡眠問題受到影響？</div>
+                <div class="question-title">他人注意程度</div>
+                <div class="options-container" data-question="5">
+                    <div class="option" data-value="0">完全沒注意</div>
+                    <div class="option" data-value="1">一點</div>
+                    <div class="option" data-value="2">稍微</div>
+                    <div class="option" data-value="3">很多</div>
+                    <div class="option" data-value="4">非常注意</div>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <div class="question-topic">最近的睡眠問題是否令您擔心或困擾？</div>
+                <div class="question-title">困擾程度</div>
+                <div class="options-container" data-question="6">
+                    <div class="option" data-value="0">完全沒注意</div>
+                    <div class="option" data-value="1">一點</div>
+                    <div class="option" data-value="2">稍微</div>
+                    <div class="option" data-value="3">很多</div>
+                    <div class="option" data-value="4">非常注意</div>
+                </div>
+            </div>
+
+            <button class="submit-button" id="submitButton" disabled>查看評估結果</button>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <div class="results-title" id="resultTitle"></div>
+                <div class="score-display">
+                    總分：<span class="score-number" id="scoreNumber"></span>
+                </div>
+            </div>
+
+            <div class="results-content">
+                <h3>您的情況分析</h3>
+                <p id="resultRange"></p>
+
+                <h3>建議與改善方法</h3>
+                <div class="suggestions-list" id="suggestions"></div>
+            </div>
+
+            <div class="line-cta">
+                <h3>🌙 想了解更多助眠秘密？</h3>
+                <p>加入顧眠官方Line，獲得專業睡眠建議<br>還能獲得100點回饋點數！</p>
+                <button class="line-button" onclick="window.open('https://lin.ee/NLEIdpj', '_blank')">
+                    加入顧眠官方Line
+                </button>
+            </div>
+
+            <div class="disclaimer">
+                本量表僅為初步評估，不能取代專業醫療診斷。如有嚴重睡眠問題，請諮詢專業醫師。
+            </div>
         </div>
     </div>
 
     <script>
-        const quizData = [
-            { topic: "評估近兩週內失眠問題的嚴重程度", question: "A. 入睡困難", options: ["無", "輕度", "中度", "重度", "非常嚴重"] },
-            { topic: "評估近兩週內失眠問題的嚴重程度", question: "B. 無法維持較長的睡眠", options: ["無", "輕度", "中度", "重度", "非常嚴重"] },
-            { topic: "評估近兩週內失眠問題的嚴重程度", question: "C. 太早醒", options: ["無", "輕度", "中度", "重度", "非常嚴重"] },
-            { topic: "您滿意自己最近的睡眠狀態嗎？", question: "滿意度", options: ["非常滿意", "滿意", "中等", "不滿意", "非常不滿意"] },
-            { topic: "睡眠問題是否干擾到您的日常生活功能？", question: "干擾程度", options: ["完全無干擾", "一點", "稍微", "很多", "非常多"] },
-            { topic: "他人是否有注意到您的生活品質因睡眠問題受到影響？", question: "他人注意程度", options: ["完全沒注意", "一點", "稍微", "很多", "非常注意"] },
-            { topic: "最近的睡眠問題是否令您擔心或困擾？", question: "困擾程度", options: ["完全沒注意", "一點", "稍微", "很多", "非常注意"] }
-        ];
-
         const resultsData = {
-            "0-7": { title: "無臨床意義的失眠", range: "0～7分：無明顯失眠困擾", suggestions: "<ul><li>維持規律的作息時間，每天固定時間上床與起床</li><li>睡前1-2小時避免使用手機、電腦等電子產品</li><li>保持適當的運動習慣，但避免睡前3小時內進行劇烈運動</li><li>創造舒適的睡眠環境：適當溫度、安靜、黑暗</li></ul>" },
-            "8-14": { title: "輕度失眠", range: "8～14分：稍有睡眠困擾", suggestions: "<ul><li>建立良好的睡眠環境（安靜、舒適、黑暗、適溫）</li><li>睡前放鬆活動：深呼吸、冥想、溫和伸展或聆聽輕柔音樂</li><li>避免睡前攝取咖啡因、尼古丁和酒精</li><li>睡前避免大量飲水或進食</li><li>白天適度曝曬陽光，有助於調節生理時鐘</li><li>考慮使用重力毯，利用深壓覺放鬆身體，改善睡眠</li></ul>" },
-            "15-21": { title: "中度失眠", range: "15～21分：有明顯失眠困擾", suggestions: "<ul><li>嚴格執行睡眠衛生原則</li><li>考慮認知行為療法（CBT-I），這是治療失眠的有效方法</li><li>建立「睡眠日誌」記錄睡眠模式，幫助找出問題</li><li>限制在床上的時間，只用於睡眠和親密行為</li><li>如果無法入睡，起床做些輕鬆活動，直到感到困倦再回床</li><li>考慮使用重力毯，利用深壓覺放鬆身體，改善睡眠</li><li>如症狀持續超過一個月，建議諮詢專業醫師</li></ul>" },
-            "22-28": { title: "重度失眠", range: "22～28分：有嚴重失眠困擾", suggestions: "<ul><li>盡快諮詢專業醫師或睡眠專家</li><li>可能需要專業的睡眠評估和治療計劃</li><li>同時注意情緒健康，因失眠可能與焦慮、憂鬱等問題相關</li><li>在專業指導下，可能需要短期藥物治療配合行為治療</li><li>考慮使用重力毯，利用深壓覺放鬆身體，改善睡眠</li><li>尋求家人或朋友的支持與理解</li></ul>" }
+            "0-7": { 
+                title: "無臨床意義的失眠", 
+                range: "0～7分：無明顯失眠困擾", 
+                suggestions: [
+                    "維持規律的作息時間，每天固定時間上床與起床",
+                    "睡前1-2小時避免使用手機、電腦等電子產品",
+                    "保持適當的運動習慣，但避免睡前3小時內進行劇烈運動",
+                    "創造舒適的睡眠環境：適當溫度、安靜、黑暗",
+                    "考慮使用重力毯，利用深壓覺放鬆身體，維持良好睡眠品質"
+                ]
+            },
+            "8-14": { 
+                title: "輕度失眠", 
+                range: "8～14分：稍有睡眠困擾", 
+                suggestions: [
+                    "建立良好的睡眠環境（安靜、舒適、黑暗、適溫）",
+                    "睡前放鬆活動：深呼吸、冥想、溫和伸展或聆聽輕柔音樂",
+                    "避免睡前攝取咖啡因、尼古丁和酒精",
+                    "睡前避免大量飲水或進食",
+                    "白天適度曝曬陽光，有助於調節生理時鐘",
+                    "考慮使用重力毯，利用深壓覺放鬆身體，改善睡眠品質"
+                ]
+            },
+            "15-21": { 
+                title: "中度失眠", 
+                range: "15～21分：有明顯失眠困擾", 
+                suggestions: [
+                    "嚴格執行睡眠衛生原則",
+                    "考慮認知行為療法（CBT-I），這是治療失眠的有效方法",
+                    "建立「睡眠日誌」記錄睡眠模式，幫助找出問題",
+                    "限制在床上的時間，只用於睡眠和親密行為",
+                    "如果無法入睡，起床做些輕鬆活動，直到感到困倦再回床",
+                    "考慮使用重力毯，利用深壓覺放鬆身體，顯著改善睡眠",
+                    "如症狀持續超過一個月，建議諮詢專業醫師"
+                ]
+            },
+            "22-28": { 
+                title: "重度失眠", 
+                range: "22～28分：有嚴重失眠困擾", 
+                suggestions: [
+                    "盡快諮詢專業醫師或睡眠專家",
+                    "可能需要專業的睡眠評估和治療計劃",
+                    "同時注意情緒健康，因失眠可能與焦慮、憂鬱等問題相關",
+                    "在專業指導下，可能需要短期藥物治療配合行為治療",
+                    "考慮使用重力毯，利用深壓覺放鬆身體，輔助改善睡眠",
+                    "尋求家人或朋友的支持與理解"
+                ]
+            }
         };
 
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let selectedOptionIndex = -1;
+        let answers = {};
+        let totalQuestions = 7;
 
-        const questionTextEl = document.getElementById('question-text');
-        const questionTopicEl = document.getElementById('question-topic');
-        const optionsContainerEl = document.getElementById('options-container');
-        const nextBtn = document.getElementById('next-btn');
-        const progressBar = document.getElementById('progressBar');
-        
-        const quizContainer = document.getElementById('quiz-container');
-        const resultsContainer = document.getElementById('results-container');
-        const scoreTextEl = document.getElementById('score-text');
-        const resultTitleEl = document.getElementById('result-title');
-        const resultRangeEl = document.getElementById('result-range');
-        const resultSuggestionsEl = document.getElementById('result-suggestions');
-        
-        function loadQuestion() {
-            selectedOptionIndex = -1;
-            nextBtn.disabled = true;
-            const currentQuestion = quizData[currentQuestionIndex];
-            questionTopicEl.innerText = currentQuestion.topic;
-            questionTextEl.innerText = currentQuestion.question;
-            optionsContainerEl.innerHTML = "";
-            currentQuestion.options.forEach((option, index) => {
-                const li = document.createElement('li');
-                li.innerText = option;
-                li.dataset.value = index;
-                li.addEventListener('click', () => {
-                    document.querySelectorAll('#options-container li').forEach(opt => opt.classList.remove('selected'));
-                    li.classList.add('selected');
-                    selectedOptionIndex = index;
-                    nextBtn.disabled = false;
+        // 初始化選項點擊事件
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const container = this.parentElement;
+                const questionIndex = container.getAttribute('data-question');
+                const value = parseInt(this.getAttribute('data-value'));
+
+                // 移除同組其他選項的選中狀態
+                container.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
                 });
-                optionsContainerEl.appendChild(li);
+
+                // 添加選中狀態
+                this.classList.add('selected');
+
+                // 記錄答案
+                answers[questionIndex] = value;
+
+                // 更新進度條和按鈕狀態
+                updateProgress();
+                updateSubmitButton();
             });
-            updateProgressBar();
-        }
-
-        function updateProgressBar() {
-            const progress = ((currentQuestionIndex) / quizData.length) * 100;
-            progressBar.style.width = `${progress}%`;
-        }
-        
-        function showResults() {
-            quizContainer.style.display = 'none';
-            resultsContainer.style.display = 'block';
-            
-            let resultKey;
-            if (score <= 7) resultKey = "0-7";
-            else if (score <= 14) resultKey = "8-14";
-            else if (score <= 21) resultKey = "15-21";
-            else resultKey = "22-28";
-            
-            const result = resultsData[resultKey];
-            scoreTextEl.innerText = score;
-            resultTitleEl.innerText = result.title;
-            resultRangeEl.innerText = result.range;
-            resultSuggestionsEl.innerHTML = result.suggestions;
-
-            saveScoreToSheet(score);
-        }
-
-        // 替換 quiz.html 中的 saveScoreToSheet 函數
-
-function saveScoreToSheet(finalScore) {
-    // 嘗試取得完整的會話資料
-    let sessionData = null;
-    try {
-        const sessionDataStr = localStorage.getItem('surveySessionData');
-        if (sessionDataStr) {
-            sessionData = JSON.parse(sessionDataStr);
-        }
-    } catch (error) {
-        console.error('解析會話資料失敗:', error);
-    }
-
-    // 如果沒有完整資料，回到舊的方式
-    const userId = sessionData ? sessionData.userId : localStorage.getItem('surveySessionId');
-    const email = sessionData ? sessionData.email : null;
-    const timestamp = sessionData ? sessionData.timestamp : null;
-
-    if (!userId) {
-        console.error("找不到使用者識別資訊，無法儲存分數。");
-        return;
-    }
-
-    console.log('準備儲存分數:', { userId, email, timestamp, finalScore });
-
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyD325SiMu3Q15nxnv8YHlt4MaWGH6vflfoYnqFH_18WhbWHGgQwDSvaEW0J_ZOO5GM/exec';
-    
-    // 使用 iframe 方式提交分數，避免 CORS 問題
-    const iframe = document.createElement('iframe');
-    iframe.name = 'score-iframe';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = scriptURL;
-    form.target = 'score-iframe';
-    form.style.display = 'none';
-    
-    // 添加表單欄位
-    const fields = {
-        action: 'updateScore',
-        userId: userId,
-        score: finalScore
-    };
-    
-    // 如果有 email 和 timestamp，也一起送出
-    if (email) fields.email = email;
-    if (timestamp) fields.timestamp = timestamp;
-    
-    for (let [key, value] of Object.entries(fields)) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-    }
-    
-    document.body.appendChild(form);
-    
-    // 設定超時處理
-    const timeout = setTimeout(() => {
-        console.log("分數儲存請求已送出（超時假設成功）");
-        cleanup();
-        // 清除會話資料
-        localStorage.removeItem('surveySessionId');
-        localStorage.removeItem('surveySessionData');
-    }, 3000);
-    
-    // iframe 載入完成事件
-    iframe.onload = function() {
-        console.log("分數儲存請求已完成");
-        clearTimeout(timeout);
-        cleanup();
-        // 清除會話資料
-        localStorage.removeItem('surveySessionId');
-        localStorage.removeItem('surveySessionData');
-    };
-    
-    function cleanup() {
-        if (document.body.contains(form)) {
-            document.body.removeChild(form);
-        }
-        if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-        }
-    }
-    
-    // 提交表單
-    form.submit();
-}
-
-        nextBtn.addEventListener('click', () => {
-            score += selectedOptionIndex;
-            currentQuestionIndex++;
-            if (currentQuestionIndex < quizData.length) {
-                loadQuestion();
-            } else {
-                updateProgressBar();
-                progressBar.style.width = '100%';
-                showResults();
-            }
         });
 
-        loadQuestion();
+        function updateProgress() {
+            const answeredQuestions = Object.keys(answers).length;
+            const progress = (answeredQuestions / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function updateSubmitButton() {
+            const submitButton = document.getElementById('submitButton');
+            const answeredQuestions = Object.keys(answers).length;
+            
+            if (answeredQuestions === totalQuestions) {
+                submitButton.disabled = false;
+                submitButton.textContent = '查看評估結果';
+            } else {
+                submitButton.disabled = true;
+                submitButton.textContent = `請完成所有題目 (${answeredQuestions}/${totalQuestions})`;
+            }
+        }
+
+        // 提交按鈕事件
+        document.getElementById('submitButton').addEventListener('click', function() {
+            showResults();
+        });
+
+        function showResults() {
+            // 計算總分
+            let totalScore = 0;
+            for (let questionIndex in answers) {
+                totalScore += answers[questionIndex];
+            }
+
+            // 決定結果類型
+            let resultKey;
+            if (totalScore <= 7) resultKey = "0-7";
+            else if (totalScore <= 14) resultKey = "8-14";
+            else if (totalScore <= 21) resultKey = "15-21";
+            else resultKey = "22-28";
+
+            const result = resultsData[resultKey];
+
+            // 更新結果頁面
+            document.getElementById('resultTitle').textContent = result.title;
+            document.getElementById('scoreNumber').textContent = totalScore;
+            document.getElementById('resultRange').textContent = result.range;
+
+            // 更新建議列表
+            const suggestionsList = document.getElementById('suggestions');
+            suggestionsList.innerHTML = '<ul>' + 
+                result.suggestions.map(suggestion => `<li>${suggestion}</li>`).join('') + 
+                '</ul>';
+
+            // 隱藏測驗區域，顯示結果區域
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+
+            // 儲存結果
+            saveScoreToSheet(totalScore);
+        }
+
+        function saveScoreToSheet(finalScore) {
+            // 嘗試取得完整的會話資料
+            let sessionData = null;
+            try {
+                const sessionDataStr = localStorage.getItem('surveySessionData');
+                if (sessionDataStr) {
+                    sessionData = JSON.parse(sessionDataStr);
+                }
+            } catch (error) {
+                console.error('解析會話資料失敗:', error);
+            }
+
+            // 如果沒有完整資料，回到舊的方式
+            const userId = sessionData ? sessionData.userId : localStorage.getItem('surveySessionId');
+            const email = sessionData ? sessionData.email : null;
+            const timestamp = sessionData ? sessionData.timestamp : null;
+
+            if (!userId) {
+                console.error("找不到使用者識別資訊，無法儲存分數。");
+                return;
+            }
+
+            console.log('準備儲存分數:', { userId, email, timestamp, finalScore });
+
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyD325SiMu3Q15nxnv8YHlt4MaWGH6vflfoYnqFH_18WhbWHGgQwDSvaEW0J_ZOO5GM/exec';
+            
+            // 使用 iframe 方式提交分數，避免 CORS 問題
+            const iframe = document.createElement('iframe');
+            iframe.name = 'score-iframe';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = scriptURL;
+            form.target = 'score-iframe';
+            form.style.display = 'none';
+            
+            // 添加表單欄位
+            const fields = {
+                action: 'updateScore',
+                userId: userId,
+                score: finalScore
+            };
+            
+            // 如果有 email 和 timestamp，也一起送出
+            if (email) fields.email = email;
+            if (timestamp) fields.timestamp = timestamp;
+            
+            for (let [key, value] of Object.entries(fields)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            }
+            
+            document.body.appendChild(form);
+            
+            // 設定超時處理
+            const timeout = setTimeout(() => {
+                console.log("分數儲存請求已送出（超時假設成功）");
+                cleanup();
+                // 清除會話資料
+                localStorage.removeItem('surveySessionId');
+                localStorage.removeItem('surveySessionData');
+            }, 3000);
+            
+            // iframe 載入完成事件
+            iframe.onload = function() {
+                console.log("分數儲存請求已完成");
+                clearTimeout(timeout);
+                cleanup();
+                // 清除會話資料
+                localStorage.removeItem('surveySessionId');
+                localStorage.removeItem('surveySessionData');
+            };
+            
+            function cleanup() {
+                if (document.body.contains(form)) {
+                    document.body.removeChild(form);
+                }
+                if (document.body.contains(iframe)) {
+                    document.body.removeChild(iframe);
+                }
+            }
+            
+            // 提交表單
+            form.submit();
+        }
+
+        // 初始化按鈕狀態
+        updateSubmitButton();
     </script>
 </body>
 </html>
