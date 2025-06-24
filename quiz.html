@@ -105,16 +105,16 @@
 
         .options-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
             margin-bottom: 20px;
         }
 
         .option {
             background: #F7F3ED;
             border: 2px solid #D7DFE0;
-            border-radius: 12px;
-            padding: 15px 20px;
+            border-radius: 10px;
+            padding: 12px 8px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -122,6 +122,11 @@
             color: #333;
             position: relative;
             overflow: hidden;
+            font-size: 0.9rem;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .option::before {
@@ -327,11 +332,18 @@
             }
             
             .options-container {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
             }
             
             .quiz-section {
                 padding: 25px;
+            }
+            
+            .option {
+                padding: 10px 6px;
+                font-size: 0.85rem;
+                min-height: 40px;
             }
         }
     </style>
