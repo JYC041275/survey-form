@@ -605,6 +605,9 @@
             document.getElementById('quizSection').style.display = 'none';
             document.getElementById('resultsSection').style.display = 'block';
 
+            // 自動滾動到頁面頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
             // 儲存結果
             saveScoreToSheet(totalScore);
         }
