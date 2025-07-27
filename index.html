@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>顧眠 | 照顧你的夜夜好眠!! </title>
+    <title>問卷前置作業 - 基本資料收集</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -135,7 +135,23 @@
             -moz-appearance: textfield;
         }
     </style>
-</head>
+
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '783515777576330');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=783515777576330&ev=PageView&noscript=1"
+    /></noscript>
+    </head>
 <body>
     <div class="container">
         <h1 style="white-space: nowrap;">好眠度量表問卷</h1>
@@ -217,6 +233,12 @@
                 localStorage.setItem('surveySessionId', sessionData.userId);
                 // 新的方式儲存完整資訊
                 localStorage.setItem('surveySessionData', JSON.stringify(sessionData));
+
+                // ----> Facebook Pixel 事件 <----
+                // 當表單成功提交後，觸發「潛在顧客 (Lead)」事件
+                if (typeof fbq === 'function') {
+                    fbq('track', 'Lead');
+                }
                 
                 window.location.href = 'quiz.html';
                 
